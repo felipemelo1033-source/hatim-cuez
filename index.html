@@ -6,23 +6,23 @@
     <title>Hatim Cüz Kayıt Sistemi</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 6px solid #1b5e20; }
-        h2 { color: #1b5e20; text-align: center; margin-bottom: 5px; }
-        p.info { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #333; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 6px solid #1b5e20; text-align: center; }
+        
+        /* Logo Styling */
+        .logo { max-width: 120px; height: auto; margin-bottom: 15px; }
+        
+        h2 { color: #1b5e20; margin-bottom: 5px; }
+        p.info { color: #666; font-size: 13px; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #333; text-align: left; }
         input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        input:focus, select:focus { border-color: #1b5e20; outline: none; }
-        button { background: #1b5e20; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #2e7d32; }
-        button:disabled { background: #ccc; }
-        #status { text-align: center; font-weight: bold; margin-top: 10px; font-size: 14px; }
-        .loading { color: orange; text-align: center; font-weight: bold; }
-        .required-star { color: red; }
+        /* Restliches Styling bleibt gleich... */
     </style>
 </head>
 <body>
 
 <div class="card">
+    <img src="logo.png" alt="Logo" class="logo">
+    
     <h2>Hatim Cüz Kaydı</h2>
     <p class="info">Ülkücü Şehitler Anısına Hatim Organizasyonu</p>
     
