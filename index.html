@@ -8,14 +8,27 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 6px solid #1b5e20; text-align: center; }
         
-        /* Logo Styling */
         .logo { max-width: 120px; height: auto; margin-bottom: 15px; }
         
         h2 { color: #1b5e20; margin-bottom: 5px; }
         p.info { color: #666; font-size: 13px; margin-bottom: 20px; }
         label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #333; text-align: left; }
+        
         input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        /* Restliches Styling bleibt gleich... */
+        input:focus, select:focus { border-color: #1b5e20; outline: none; }
+        
+        button { background: #1b5e20; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #2e7d32; }
+        button:disabled { background: #ccc; }
+
+        /* Başarı Ekranı Tasarımı */
+        #successScreen { display: none; padding: 20px 0; }
+        .success-icon { color: #2e7d32; font-size: 50px; margin-bottom: 10px; }
+        .success-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; }
+        
+        #status { text-align: center; font-weight: bold; margin-top: 10px; font-size: 14px; }
+        .loading { color: orange; text-align: center; font-weight: bold; }
+        .required-star { color: red; }
     </style>
 </head>
 <body>
@@ -28,15 +41,16 @@
     
     <div id="loadingScreen" class="loading">Müsait cüzler kontrol ediliyor...</div>
 
+    <!-- Kayıt Formu -->
     <form id="hatimForm" style="display:none;">
         <label>Adınız Soyadınız <span class="required-star">*</span></label>
         <input type="text" name="isim" placeholder="Ad Soyad" required>
 
         <label>Telefon Numaranız <span class="required-star">*</span></label>
-        <input type="tel" name="tel" placeholder="01xx xxx xx xx" required>
+        <input type="tel" name="tel" placeholder="05xx xxx xx xx" required>
 
         <label>Bağlı Olduğunuz Teşkilat <span class="required-star">*</span></label>
-        <input type="text" name="teskilat" placeholder="Teşkilat Adı" required>
+        <input type="text" name="teskilat" placeholder="Ocak / Teşkilat Adı" required>
         
         <label>Hatim Seçin <span class="required-star">*</span></label>
         <select name="hatimNo" id="hatimNo" required onchange="updateCuzList()">
@@ -50,20 +64,25 @@
         
         <button type="submit" id="submitBtn">KAYDI TAMAMLA</button>
     </form>
+
+    <!-- Başarı Onay Ekranı -->
+    <div id="successScreen">
+        <div class="success-icon">✓</div>
+        <div class="success-text" id="successMessage"></div>
+        <button onclick="location.reload()">ANA SAYFAYA DÖN</button>
+    </div>
+
     <div id="status"></div>
 </div>
 
 <script>
-    // URL'yi tırnak içinde buraya yapıştırın
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwaOXvqsgqKYOQza2iu00elEXuQWNm1Z5xtRhRgAM9DeGQlaGCXwUvn_-NJWIHPp7B5/exec';
     let takenList = [];
 
-window.onload = async () => {
+    window.onload = async () => {
         try {
-            // URL'nin sonuna ?t=... ekleyerek tarayıcıyı her seferinde yeni veri çekmeye zorluyoruz
             const response = await fetch(scriptURL + '?t=' + new Date().getTime());
             takenList = await response.json();
-            
             const hatimSelect = document.getElementById('hatimNo');
             for(let i=1; i<=20; i++) {
                 let opt = document.createElement('option');
@@ -97,12 +116,8 @@ window.onload = async () => {
     form.addEventListener('submit', e => {
         e.preventDefault();
         
-        // Ekstra bir güvenlik kontrolü (JS tarafında)
-        const nameVal = form.isim.value.trim();
-        if(nameVal === "") {
-            alert("Lütfen isminizi giriniz.");
-            return;
-        }
+        const hatimVal = document.getElementById('hatimNo').value;
+        const cuzVal = document.getElementById('cuzNo').value;
 
         document.getElementById('submitBtn').disabled = true;
         document.getElementById('status').style.color = "orange";
@@ -110,9 +125,14 @@ window.onload = async () => {
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
           .then(res => {
-              document.getElementById('status').style.color = "green";
-              document.getElementById('status').innerText = "Kaydınız başarıyla alındı. Allah kabul etsin.";
-              setTimeout(() => location.reload(), 2500);
+              // Formu gizle, başarı ekranını göster
+              document.getElementById('hatimForm').style.display = 'none';
+              document.getElementById('status').innerText = "";
+              
+              const successMsg = document.getElementById('successMessage');
+              successMsg.innerHTML = `Sayın <b>${form.isim.value}</b>,<br><br><b>${hatimVal}. Hatim, ${cuzVal}. Cüz</b> başarıyla adınıza kaydedilmiştir.<br><br>Allah kabul etsin.`;
+              
+              document.getElementById('successScreen').style.display = 'block';
           })
           .catch(err => {
               document.getElementById('status').style.color = "red";
