@@ -3,81 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hatim Kayıt Sistemi</title>
+    <title>Hatim Cüz Kayıt</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #1b5e20; }
-        h2 { color: #1b5e20; text-align: center; margin-bottom: 20px; font-size: 22px; }
-        label { display: block; margin-bottom: 5px; font-size: 14px; color: #555; }
+        h2 { color: #1b5e20; text-align: center; margin-bottom: 5px; }
+        p.info { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; }
         input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        button { background: #1b5e20; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        button:hover { background: #2e7d32; }
+        button { background: #1b5e20; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:disabled { background: #ccc; }
-        #status { text-align: center; font-weight: bold; margin-top: 10px; }
+        #status { text-align: center; font-weight: bold; margin-top: 10px; font-size: 14px; }
+        .loading { color: orange; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>Hatim Cüz Kaydı</h2>
-    <form id="hatimForm">
+    <p class="info">Sadece alınmamış cüzler listelenmektedir.</p>
+    
+    <div id="loadingScreen" class="status loading">Mevcut cüzler kontrol ediliyor...</div>
+
+    <form id="hatimForm" style="display:none;">
         <label>Adınız Soyadınız</label>
-        <input type="text" name="isim" placeholder="Örn: Ahmet Yılmaz" required>
+        <input type="text" name="isim" required>
         
         <label>Hatim Seçin</label>
-        <select name="hatimNo" id="hatimNo" required>
-            <option value="" disabled selected>Seçiniz...</option>
+        <select name="hatimNo" id="hatimNo" required onchange="updateCuzList()">
+            <option value="" disabled selected>Hatim seçiniz...</option>
         </select>
         
         <label>Cüz Seçin</label>
-        <select name="cuzNo" id="cuzNo" required>
-            <option value="" disabled selected>Seçiniz...</option>
+        <select name="cuzNo" id="cuzNo" required disabled>
+            <option value="" disabled selected>Önce hatim seçin...</option>
         </select>
         
-        <button type="submit" id="submitBtn">KAYDI TAMAMLA</button>
+        <button type="submit" id="submitBtn">KAYDET VE GÖNDER</button>
     </form>
     <div id="status"></div>
 </div>
 
 <script>
-    // 20 Hatim ve 30 Cüz seçeneklerini oluştur
-    const hatimSelect = document.getElementById('hatimNo');
-    const cuzSelect = document.getElementById('cuzNo');
-    
-    for(let i=1; i<=20; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.innerHTML = i + ". Hatim";
-        hatimSelect.appendChild(opt);
-    }
-    for(let i=1; i<=30; i++) {
-        let opt = document.createElement('option');
-        opt.value = i; opt.innerHTML = i + ". Cüz";
-        cuzSelect.appendChild(opt);
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzvrcy4dntGuxC-4AMI80WN_0srGAZZmfZ0mvIHRQdzOONgx-XWFGlxnGc-ygVQXeJP/exec';
+    let takenList = [];
+
+    // Sayfa açıldığında dolu cüzleri çek
+    window.onload = async () => {
+        try {
+            const response = await fetch(scriptURL);
+            takenList = await response.json();
+            
+            const hatimSelect = document.getElementById('hatimNo');
+            for(let i=1; i<=20; i++) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerHTML = i + ". Hatim";
+                hatimSelect.appendChild(opt);
+            }
+            
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('hatimForm').style.display = 'block';
+        } catch (e) {
+            document.getElementById('loadingScreen').innerText = "Veriler alınamadı. Lütfen sayfayı yenileyin.";
+        }
+    };
+
+    function updateCuzList() {
+        const hatimNo = document.getElementById('hatimNo').value;
+        const cuzSelect = document.getElementById('cuzNo');
+        cuzSelect.innerHTML = '<option value="" disabled selected>Cüz seçiniz...</option>';
+        cuzSelect.disabled = false;
+
+        for(let i=1; i<=30; i++) {
+            let checkValue = "Hatim: " + hatimNo + "-Cüz: " + i;
+            if(!takenList.includes(checkValue)) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerHTML = i + ". Cüz";
+                cuzSelect.appendChild(opt);
+            }
+        }
+        
+        if(cuzSelect.options.length === 1) {
+            alert("Bu hatimdeki tüm cüzler alınmış! Lütfen başka bir hatim seçin.");
+        }
     }
 
-    // Google Apps Script URL'nizi buraya yapıştırın
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwjnS_DH5fT3EB2ngi7nYqKlSjzM6DoCGGmx6gFXtzf2gbOyT72s1-MFj9bASj-Q2vB/exec';
     const form = document.getElementById('hatimForm');
-    const btn = document.getElementById('submitBtn');
-    const status = document.getElementById('status');
-
     form.addEventListener('submit', e => {
         e.preventDefault();
-        btn.disabled = true;
-        status.innerText = "Kaydediliyor, lütfen bekleyin...";
-        status.style.color = "orange";
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('status').innerText = "Kaydediliyor...";
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-          .then(response => {
-              status.style.color = "green";
-              status.innerText = "Kaydınız başarıyla alındı. Allah kabul etsin.";
-              form.reset();
-              btn.disabled = false;
+          .then(res => {
+              document.getElementById('status').style.color = "green";
+              document.getElementById('status').innerText = "Başarıyla kaydedildi. Allah kabul etsin.";
+              setTimeout(() => location.reload(), 2000); // 2 saniye sonra sayfayı yenile ki liste güncellensin
           })
-          .catch(error => {
-              status.style.color = "red";
-              status.innerText = "Bir hata oluştu. Lütfen tekrar deneyin.";
-              btn.disabled = false;
+          .catch(err => {
+              document.getElementById('status').style.color = "red";
+              document.getElementById('status').innerText = "Hata! Tekrar deneyin.";
+              document.getElementById('submitBtn').disabled = false;
           });
     });
 </script>
