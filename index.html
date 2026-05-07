@@ -125,20 +125,22 @@ const form = document.getElementById('hatimForm');
         
         // Google Script'e veriyi gönder
         fetch(scriptURL, { 
-            method: 'POST', 
-            mode: 'no-cors', // CORS hatasını engellemek için eklendi
-            body: new FormData(form)
-        })
-        .then(() => {
-            // no-cors modunda yanıt okunamaz ama veri gitmiş demektir
-            document.getElementById('hatimForm').style.display = 'none';
-            document.getElementById('status').innerText = "";
-            
-            const successMsg = document.getElementById('successMessage');
-            successMsg.innerHTML = `Sayın <b>${isimVal}</b>,<br><br><b>${hatimVal}. Hatim, ${cuzVal}. Cüz</b> başarıyla adınıza kaydedilmiştir.<br><br>Allah kabul etsin.`;
-            
-            document.getElementById('successScreen').style.display = 'block';
-        })
+                method: 'POST', 
+                body: new FormData(form)
+            })
+            .then(response => response.text()) // Yanıtı oku (no-cors modunu kaldırmanız gerekebilir)
+            .then(result => {
+                if (result.trim() === "Dolu") {
+                    alert("Üzgünüz, bu cüz siz formu doldururken başkası tarafından alındı. Lütfen başka bir cüz seçiniz.");
+                    location.reload(); // Sayfayı yenile ki güncel liste gelsin
+                } else {
+                    document.getElementById('hatimForm').style.display = 'none';
+                    document.getElementById('status').innerText = "";
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.innerHTML = `Sayın <b>${form.isim.value}</b>,<br><br><b>${hatimVal}. Hatim, ${cuzVal}. Cüz</b> başarıyla adınıza kaydedilmiştir.<br><br>Allah kabul etsin.`;
+                    document.getElementById('successScreen').style.display = 'block';
+                }
+            })
         .catch(err => {
             console.error(err);
             document.getElementById('status').style.color = "red";
