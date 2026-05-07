@@ -76,7 +76,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwaOXvqsgqKYOQza2iu00elEXuQWNm1Z5xtRhRgAM9DeGQlaGCXwUvn_-NJWIHPp7B5/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxsIzSgm1agaEA5-SqEht4lDgNt0R_1KtrgCBk4sgRR1Qdd4UZwU8_oDcNMaFGsIEDV/exec';
     let takenList = [];
 
     window.onload = async () => {
@@ -112,33 +112,39 @@
         }
     }
 
-    const form = document.getElementById('hatimForm');
+const form = document.getElementById('hatimForm');
     form.addEventListener('submit', e => {
         e.preventDefault();
         
         const hatimVal = document.getElementById('hatimNo').value;
         const cuzVal = document.getElementById('cuzNo').value;
+        const isimVal = form.isim.value;
 
         document.getElementById('submitBtn').disabled = true;
-        document.getElementById('status').style.color = "orange";
         document.getElementById('status').innerText = "Bilgileriniz kaydediliyor...";
         
-        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-          .then(res => {
-              // Formu gizle, başarı ekranını göster
-              document.getElementById('hatimForm').style.display = 'none';
-              document.getElementById('status').innerText = "";
-              
-              const successMsg = document.getElementById('successMessage');
-              successMsg.innerHTML = `Sayın <b>${form.isim.value}</b>,<br><br><b>${hatimVal}. Hatim, ${cuzVal}. Cüz</b> başarıyla adınıza kaydedilmiştir.<br><br>Allah kabul etsin.`;
-              
-              document.getElementById('successScreen').style.display = 'block';
-          })
-          .catch(err => {
-              document.getElementById('status').style.color = "red";
-              document.getElementById('status').innerText = "Bir hata oluştu! Lütfen tekrar deneyin.";
-              document.getElementById('submitBtn').disabled = false;
-          });
+        // Google Script'e veriyi gönder
+        fetch(scriptURL, { 
+            method: 'POST', 
+            mode: 'no-cors', // CORS hatasını engellemek için eklendi
+            body: new FormData(form)
+        })
+        .then(() => {
+            // no-cors modunda yanıt okunamaz ama veri gitmiş demektir
+            document.getElementById('hatimForm').style.display = 'none';
+            document.getElementById('status').innerText = "";
+            
+            const successMsg = document.getElementById('successMessage');
+            successMsg.innerHTML = `Sayın <b>${isimVal}</b>,<br><br><b>${hatimVal}. Hatim, ${cuzVal}. Cüz</b> başarıyla adınıza kaydedilmiştir.<br><br>Allah kabul etsin.`;
+            
+            document.getElementById('successScreen').style.display = 'block';
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('status').style.color = "red";
+            document.getElementById('status').innerText = "Bağlantı sorunu! Lütfen tekrar deneyin.";
+            document.getElementById('submitBtn').disabled = false;
+        });
     });
 </script>
 
