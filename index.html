@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hatim Kayıt Sistemi</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #1b5e20; }
+        h2 { color: #1b5e20; text-align: center; margin-bottom: 20px; font-size: 22px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #555; }
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { background: #1b5e20; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #2e7d32; }
+        button:disabled { background: #ccc; }
+        #status { text-align: center; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Hatim Cüz Kaydı</h2>
+    <form id="hatimForm">
+        <label>Adınız Soyadınız</label>
+        <input type="text" name="isim" placeholder="Örn: Ahmet Yılmaz" required>
+        
+        <label>Hatim Seçin</label>
+        <select name="hatimNo" id="hatimNo" required>
+            <option value="" disabled selected>Seçiniz...</option>
+        </select>
+        
+        <label>Cüz Seçin</label>
+        <select name="cuzNo" id="cuzNo" required>
+            <option value="" disabled selected>Seçiniz...</option>
+        </select>
+        
+        <button type="submit" id="submitBtn">KAYDI TAMAMLA</button>
+    </form>
+    <div id="status"></div>
+</div>
+
+<script>
+    // 20 Hatim ve 30 Cüz seçeneklerini oluştur
+    const hatimSelect = document.getElementById('hatimNo');
+    const cuzSelect = document.getElementById('cuzNo');
+    
+    for(let i=1; i<=20; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.innerHTML = i + ". Hatim";
+        hatimSelect.appendChild(opt);
+    }
+    for(let i=1; i<=30; i++) {
+        let opt = document.createElement('option');
+        opt.value = i; opt.innerHTML = i + ". Cüz";
+        cuzSelect.appendChild(opt);
+    }
+
+    // Google Apps Script URL'nizi buraya yapıştırın
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwjnS_DH5fT3EB2ngi7nYqKlSjzM6DoCGGmx6gFXtzf2gbOyT72s1-MFj9bASj-Q2vB/exec';
+    const form = document.getElementById('hatimForm');
+    const btn = document.getElementById('submitBtn');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        status.innerText = "Kaydediliyor, lütfen bekleyin...";
+        status.style.color = "orange";
+        
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+          .then(response => {
+              status.style.color = "green";
+              status.innerText = "Kaydınız başarıyla alındı. Allah kabul etsin.";
+              form.reset();
+              btn.disabled = false;
+          })
+          .catch(error => {
+              status.style.color = "red";
+              status.innerText = "Bir hata oluştu. Lütfen tekrar deneyin.";
+              btn.disabled = false;
+          });
+    });
+</script>
+
+</body>
+</html>
