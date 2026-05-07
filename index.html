@@ -55,13 +55,15 @@
 
 <script>
     // URL'yi tırnak içinde buraya yapıştırın
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxRrQb9dRCc06vR5qeUfK-phi75CAd1rI_BB7cs2WOmCnfCz28cE-GU_W1DYpjBrCk7/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwaOXvqsgqKYOQza2iu00elEXuQWNm1Z5xtRhRgAM9DeGQlaGCXwUvn_-NJWIHPp7B5/exec';
     let takenList = [];
 
-    window.onload = async () => {
+window.onload = async () => {
         try {
-            const response = await fetch(scriptURL);
+            // URL'nin sonuna ?t=... ekleyerek tarayıcıyı her seferinde yeni veri çekmeye zorluyoruz
+            const response = await fetch(scriptURL + '?t=' + new Date().getTime());
             takenList = await response.json();
+            
             const hatimSelect = document.getElementById('hatimNo');
             for(let i=1; i<=20; i++) {
                 let opt = document.createElement('option');
