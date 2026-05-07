@@ -17,6 +17,7 @@
         button:disabled { background: #ccc; }
         #status { text-align: center; font-weight: bold; margin-top: 10px; font-size: 14px; }
         .loading { color: orange; text-align: center; font-weight: bold; }
+        .required-star { color: red; }
     </style>
 </head>
 <body>
@@ -25,24 +26,24 @@
     <h2>Hatim Cüz Kaydı</h2>
     <p class="info">Ülkücü Şehitler Anısına Hatim Organizasyonu</p>
     
-    <div id="loadingScreen" class="loading">Mevcut cüzler kontrol ediliyor, lütfen bekleyin...</div>
+    <div id="loadingScreen" class="loading">Müsait cüzler kontrol ediliyor...</div>
 
     <form id="hatimForm" style="display:none;">
-        <label>Adınız Soyadınız *</label>
+        <label>Adınız Soyadınız <span class="required-star">*</span></label>
         <input type="text" name="isim" placeholder="Ad Soyad" required>
 
-        <label>Telefon Numaranız *</label>
+        <label>Telefon Numaranız <span class="required-star">*</span></label>
         <input type="tel" name="tel" placeholder="05xx xxx xx xx" required>
 
-        <label>Bağlı Olduğunuz Teşkilat *</label>
+        <label>Bağlı Olduğunuz Teşkilat <span class="required-star">*</span></label>
         <input type="text" name="teskilat" placeholder="Ocak / Teşkilat Adı" required>
         
-        <label>Hatim Seçin *</label>
+        <label>Hatim Seçin <span class="required-star">*</span></label>
         <select name="hatimNo" id="hatimNo" required onchange="updateCuzList()">
             <option value="" disabled selected>Hatim seçiniz...</option>
         </select>
         
-        <label>Cüz Seçin *</label>
+        <label>Cüz Seçin <span class="required-star">*</span></label>
         <select name="cuzNo" id="cuzNo" required disabled>
             <option value="" disabled selected>Önce hatim seçin...</option>
         </select>
@@ -54,7 +55,7 @@
 
 <script>
     // URL'yi tırnak içinde buraya yapıştırın
-    const scriptURL = 'YENI_SCRIPT_URL_BURAYA';
+    const scriptURL = 'BURAYA_GOOGLE_SCRIPT_URL_GİLECEK';
     let takenList = [];
 
     window.onload = async () => {
@@ -70,7 +71,7 @@
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('hatimForm').style.display = 'block';
         } catch (e) {
-            document.getElementById('loadingScreen').innerText = "Bağlantı hatası. Sayfayı yenileyin.";
+            document.getElementById('loadingScreen').innerText = "Bağlantı hatası. Lütfen sayfayı yenileyin.";
         }
     };
 
@@ -93,9 +94,17 @@
     const form = document.getElementById('hatimForm');
     form.addEventListener('submit', e => {
         e.preventDefault();
+        
+        // Ekstra bir güvenlik kontrolü (JS tarafında)
+        const nameVal = form.isim.value.trim();
+        if(nameVal === "") {
+            alert("Lütfen isminizi giriniz.");
+            return;
+        }
+
         document.getElementById('submitBtn').disabled = true;
         document.getElementById('status').style.color = "orange";
-        document.getElementById('status').innerText = "Kaydediliyor...";
+        document.getElementById('status').innerText = "Bilgileriniz kaydediliyor...";
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
           .then(res => {
@@ -105,7 +114,7 @@
           })
           .catch(err => {
               document.getElementById('status').style.color = "red";
-              document.getElementById('status').innerText = "Hata oluştu! Lütfen tekrar deneyin.";
+              document.getElementById('status').innerText = "Bir hata oluştu! Lütfen tekrar deneyin.";
               document.getElementById('submitBtn').disabled = false;
           });
     });
